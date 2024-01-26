@@ -5,11 +5,14 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Server {
 
-    private static List<Partida> partidasDados = new ArrayList<>();
+    private static Map<Integer,Partida> partidasDados = new HashMap();
+    private static int puertoLibre = 5555;
 
     public void run() {
         System.out.println("Creando socket servidor");
@@ -50,20 +53,28 @@ public class Server {
         }
     }
 
-    public static synchronized void nuevoJugador(String gameType, String nickName){
+    public static synchronized String[] nuevoJugador(String gameType, String nickName){
         if (gameType.equalsIgnoreCase("dados")){
             boolean partidaNueva = true;
+            int salas = 0;
+            int puerto;
+
             for (int i = 0; i < partidasDados.size(); i++) {
+                salas++;
                 if (!partidasDados.get(i).isFull()){
                     partidaNueva = false;
                     partidasDados.get(i).setP2_nickName(nickName);
+                    return new String[]{"localhost", String.valueOf(puertoLibre), nickName, "invitado"};
                 }
             }
             if(partidaNueva){
                 System.out.println("PARTIDA CREADAAAAAAAAA");
-                partidasDados.add(new Partida(nickName));
+                partidasDados.put(salas,new Partida(nickName));
+                puertoLibre++;
+                return new String[]{"localhost", String.valueOf(puertoLibre), nickName, "anfitrion"};
             }
         }
+        return null;
     }
 
     private void mostrarSalas(){
@@ -76,4 +87,5 @@ public class Server {
         }
         System.out.println("/////////////////////////");
     }
+
 }

@@ -18,11 +18,21 @@ public class Peticion implements Runnable {
              PrintWriter pw = new PrintWriter(os)) {
 
             String mensaje = bfr.readLine();
-            String[] datosJugador = mensaje.split(",");
-            Server.nuevoJugador(datosJugador[0], datosJugador[1]);
+            String[] datosRecibidos = mensaje.split(",");
+            String[] datosEnviados = Server.nuevoJugador(datosRecibidos[0], datosRecibidos[1]);
+            if (datosEnviados != null){
+                pw.println(arrayToCSV(datosEnviados));
+            }else{
+                pw.println("Error al encontrar partida: "+datosRecibidos[1]);
+            }
+
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String arrayToCSV(String[] datos){
+        return datos[0]+","+datos[1]+","+datos[2]+","+datos[3];
     }
 }
