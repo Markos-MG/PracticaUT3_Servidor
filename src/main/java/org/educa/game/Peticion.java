@@ -3,6 +3,8 @@ package org.educa.game;
 import java.io.*;
 import java.net.Socket;
 
+import static java.lang.Thread.sleep;
+
 public class Peticion implements Runnable {
     Socket socket;
 
@@ -19,11 +21,25 @@ public class Peticion implements Runnable {
 
             String mensaje = bfr.readLine();
             String[] datosRecibidos = mensaje.split(",");
-            String[] datosEnviados = Server.nuevoJugador(datosRecibidos[0], datosRecibidos[1]);
-            if (datosEnviados != null){
-                pw.println(arrayToCSV(datosEnviados));
+            String[] datosJugador = Server.nuevoJugador(datosRecibidos[0], datosRecibidos[1]);
+            if (datosJugador != null){
+                if(datosJugador[3].equalsIgnoreCase("anfitrion")){
+                    while (!Server.getSalaLlena(datosJugador[1],datosRecibidos[0])){
+                        try {
+                            sleep(50);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                String[] datosPartida = Server.getDatosPartida(datosJugador,datosRecibidos[0]);
+                if (datosPartida != null){
+                    pw.println(arrayToCSV(datosPartida));
+                }else {
+                    pw.println("error");
+                }
             }else{
-                pw.println("Error al encontrar partida: "+datosRecibidos[1]);
+                pw.println("error");
             }
 
 

@@ -1,16 +1,15 @@
 package org.educa.game;
 
-public class Partida {
+public class PartidaDados {
 
     private boolean full;
+    private int port;
     private String P1_nickName;
     private String P1_host;
-    private String P1_port;
     private String P2_nickName;
     private String P2_host;
-    private String P2_port;
 
-    public Partida(String p1_nickName) {
+    public PartidaDados(String p1_nickName) {
         this.full = false;
         P1_nickName = p1_nickName;
     }
@@ -21,6 +20,14 @@ public class Partida {
 
     public void setFull(boolean full) {
         this.full = full;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 
     public String getP1_nickName() {
@@ -37,14 +44,6 @@ public class Partida {
 
     public void setP1_host(String p1_host) {
         P1_host = p1_host;
-    }
-
-    public String getP1_port() {
-        return P1_port;
-    }
-
-    public void setP1_port(String p1_port) {
-        P1_port = p1_port;
     }
 
     public String getP2_nickName() {
@@ -64,11 +63,4 @@ public class Partida {
         P2_host = p2_host;
     }
 
-    public String getP2_port() {
-        return P2_port;
-    }
-
-    public void setP2_port(String p2_port) {
-        P2_port = p2_port;
-    }
 }

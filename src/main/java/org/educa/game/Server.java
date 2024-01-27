@@ -4,22 +4,22 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import static java.lang.Thread.sleep;
 
 public class Server {
 
-    private static Map<Integer,Partida> partidasDados = new HashMap();
+    private static Map<Integer, PartidaDados> partidasDados = new HashMap();
     private static int puertoLibre = 5555;
 
     public void run() {
         System.out.println("Creando socket servidor");
-        inicializarServidores();
+        iniciarServidor();
     }
 
-    private void inicializarServidores(){
+    private void iniciarServidor(){
         System.out.println("Creando socket servidor");
         Socket newSocket = null;
         try (ServerSocket serverSocket = new ServerSocket()) {
@@ -56,11 +56,10 @@ public class Server {
     public static synchronized String[] nuevoJugador(String gameType, String nickName){
         if (gameType.equalsIgnoreCase("dados")){
             boolean partidaNueva = true;
-            int salas = 0;
-            int puerto;
+            int n_sala = 0;
 
             for (int i = 0; i < partidasDados.size(); i++) {
-                salas++;
+                n_sala++;
                 if (!partidasDados.get(i).isFull()){
                     partidaNueva = false;
                     partidasDados.get(i).setP2_nickName(nickName);
@@ -68,8 +67,8 @@ public class Server {
                 }
             }
             if(partidaNueva){
-                System.out.println("PARTIDA CREADAAAAAAAAA");
-                partidasDados.put(salas,new Partida(nickName));
+                System.out.println("Sala n"+n_sala+" creada");
+                partidasDados.put(n_sala,new PartidaDados(nickName));
                 puertoLibre++;
                 return new String[]{"localhost", String.valueOf(puertoLibre), nickName, "anfitrion"};
             }
@@ -86,6 +85,31 @@ public class Server {
             System.out.println("----------");
         }
         System.out.println("/////////////////////////");
+    }
+
+    public static boolean getSalaLlena(String port, String tipoPartida){
+        if(tipoPartida.equalsIgnoreCase("dados")){
+            for (int i = 0; i < partidasDados.size(); i++) {
+                if(partidasDados.get(i).getPort()==Integer.parseInt(port)){
+                    return partidasDados.get(i).isFull();
+                }
+            }
+        }
+        return true;
+    }
+
+    public static String[] getDatosPartida(String[] datosJugador1, String tipoPartida){
+        if(tipoPartida.equalsIgnoreCase("dados")){
+            for (int i = 0; i < partidasDados.size(); i++) {
+                if(partidasDados.get(i).getPort()==Integer.parseInt(datosJugador1[1])){
+                    return new String[] {datosJugador1[0],datosJugador1[1],datosJugador1[2]
+                            ,datosJugador1[3],partidasDados.get(i).getP2_host()
+                            ,String.valueOf(partidasDados.get(i).getPort())
+                            ,partidasDados.get(i).getP2_nickName()};
+                }
+            }
+        }
+        return null;
     }
 
 }
