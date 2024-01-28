@@ -9,9 +9,10 @@ public class PartidaDados {
     private String P2_nickName;
     private String P2_host;
 
-    public PartidaDados(String p1_nickName, int port) {
+    public PartidaDados(String p1_nickName, int port ,  String host) {
         this.full = false;
         this.port = port;
+        this.P1_host = host;
         P1_nickName = p1_nickName;
     }
 
