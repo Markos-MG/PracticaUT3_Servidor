@@ -55,7 +55,6 @@ public class Server {
     }
 
     public static synchronized String[] nuevoJugador(String gameType, String nickName) {
-        System.out.println(puertoLibre);
 
         if (gameType.equalsIgnoreCase("dados")) {
             int n_sala = 0;
@@ -109,19 +108,27 @@ public class Server {
 
                     if (datosJugador1[3].equalsIgnoreCase("anfitrion")) {
                         return new String[]{datosJugador1[0], datosJugador1[1], datosJugador1[2]
-                                , datosJugador1[3], partidasDados.get(i).getP2_host()
-                                , String.valueOf(partidasDados.get(i).getPort())
-                                , partidasDados.get(i).getP2_nickName()};
+                                ,datosJugador1[3], String.valueOf(i)
+                                ,partidasDados.get(i).getP2_host()
+                                ,String.valueOf(partidasDados.get(i).getPort())
+                                ,partidasDados.get(i).getP2_nickName()};
                     } else {
                         return new String[]{datosJugador1[0], datosJugador1[1], datosJugador1[2]
-                                , datosJugador1[3], partidasDados.get(i).getP1_host()
-                                , String.valueOf(partidasDados.get(i).getPort())
-                                , partidasDados.get(i).getP1_nickName()};
+                                ,datosJugador1[3], String.valueOf(i)
+                                ,partidasDados.get(i).getP1_host()
+                                ,String.valueOf(partidasDados.get(i).getPort())
+                                ,partidasDados.get(i).getP1_nickName()};
                     }
                 }
             }
         }
 
         return null;
+    }
+
+
+    public static void partidaFinalizada(int i){
+        partidasDados.remove(i);
+        System.out.println("Partida "+i+" eliminada");
     }
 }

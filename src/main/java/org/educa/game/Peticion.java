@@ -2,6 +2,7 @@ package org.educa.game;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 
 import static java.lang.Thread.sleep;
 
@@ -20,27 +21,37 @@ public class Peticion implements Runnable {
              PrintWriter pw = new PrintWriter(os)) {
 
             String mensaje = bfr.readLine();
-            String[] datosRecibidos = mensaje.split(",");
-            String[] datosJugador = Server.nuevoJugador(datosRecibidos[0], datosRecibidos[1]);
-            if (datosJugador != null){
-                if(datosJugador[3].equalsIgnoreCase("anfitrion")){
-                    while (!Server.getSalaLlena(datosJugador[1],datosRecibidos[0])){
-                        try {
-                            sleep(50);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+
+            if (mensaje.split(",").length > 1) {
+                String[] datosRecibidos = mensaje.split(",");
+                String[] datosJugador = Server.nuevoJugador(datosRecibidos[0], datosRecibidos[1]);
+
+                if (datosJugador != null){
+                    if(datosJugador[3].equalsIgnoreCase("anfitrion")){
+                        while (!Server.getSalaLlena(datosJugador[1],datosRecibidos[0])){
+                            try {
+                                sleep(50);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
-                }
-                String[] datosPartida = Server.getDatosPartida(datosJugador,datosRecibidos[0]);
-                if (datosPartida != null){
-                    pw.println(arrayToCSV(datosPartida));
-                }else {
+                    String[] datosPartida = Server.getDatosPartida(datosJugador,datosRecibidos[0]);
+                    if (datosPartida != null){
+                        pw.println(arrayToCSV(datosPartida));
+                    }else {
+                        pw.println("error");
+                    }
+                }else{
                     pw.println("error");
                 }
+
             }else{
-                pw.println("error");
+                Server.partidaFinalizada(Integer.parseInt(mensaje));
             }
+
+
+
 
 
         } catch (IOException e) {
@@ -59,4 +70,6 @@ public class Peticion implements Runnable {
             return "error";
         }
     }
+
+
 }
