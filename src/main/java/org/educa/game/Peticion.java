@@ -28,12 +28,8 @@ public class Peticion implements Runnable {
 
                 if (datosJugador != null){
                     if(datosJugador[3].equalsIgnoreCase("anfitrion")){
-                        while (!Server.getSalaLlena(datosJugador[1],datosRecibidos[0])){
-                            try {
-                                sleep(50);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
+                        while (!Server.getSalaLlena(datosJugador[4],datosRecibidos[0])){
+                            esperar(50);
                         }
                     }
                     String[] datosPartida = Server.getDatosPartida(datosJugador,datosRecibidos[0]);
@@ -71,5 +67,12 @@ public class Peticion implements Runnable {
         }
     }
 
+    private void esperar(int tiempo) {
+        try {
+            sleep(tiempo);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }

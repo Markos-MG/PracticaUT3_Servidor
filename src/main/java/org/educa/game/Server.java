@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +11,7 @@ import static java.lang.Thread.sleep;
 
 public class Server {
 
-    private static Map<Integer, PartidaDados> partidasDados = new HashMap();
+    private static Map<Integer, Game> partidasDados = new HashMap();
     private static int puertoLibre = 5570;
 
     public void run() {
@@ -60,16 +59,16 @@ public class Server {
             int n_sala = 0;
 
             for (int i = 0; i < partidasDados.size(); i++) {
-                n_sala++;
                 if (!partidasDados.get(i).isFull()) {
-                    partidasDados.get(i).setP2(nickName, "localhost");
-                    return new String[]{"localhost", String.valueOf(puertoLibre), nickName, "invitado"};
+                    partidasDados.get(i).addPlayer(nickName,"localHost", puertoLibre);
+                    return new String[]{"localhost", String.valueOf(puertoLibre), nickName, "invitado",String.valueOf(n_sala)};
                 }
+                n_sala++;
             }
             System.out.println("Sala n" + n_sala + " creada");
             nuevoPuerto();
-            partidasDados.put(n_sala, new PartidaDados(nickName, puertoLibre , "localhost"));
-            return new String[]{"localhost", String.valueOf(puertoLibre), nickName, "anfitrion"};
+            partidasDados.put(n_sala, new Game(nickName, "localhost", puertoLibre, 2));
+            return new String[]{"localhost", String.valueOf(puertoLibre), nickName, "anfitrion", String.valueOf(n_sala)};
 
         }
         return null;
@@ -79,47 +78,27 @@ public class Server {
         puertoLibre++;
     }
 
-    private void mostrarSalas() {
-        System.out.println("//////// SALAS /////////");
-        for (int i = 0; i < partidasDados.size(); i++) {
-            System.out.println("SALA " + i);
-            System.out.println(partidasDados.get(i).getP1_nickName());
-            System.out.println(partidasDados.get(i).getP2_nickName());
-            System.out.println("----------");
-        }
-        System.out.println("/////////////////////////");
-    }
 
-    public static boolean getSalaLlena(String port, String tipoPartida) {
+    public static boolean getSalaLlena(String id_sala, String tipoPartida) {
         if (tipoPartida.equalsIgnoreCase("dados")) {
-            for (int i = 0; i < partidasDados.size(); i++) {
-                if (partidasDados.get(i).getPort() == Integer.parseInt(port)) {
-                    return partidasDados.get(i).isFull();
-                }
-            }
+            return partidasDados.get(Integer.parseInt(id_sala)).isFull();
         }
         return true;
     }
 
     public static String[] getDatosPartida(String[] datosJugador1, String tipoPartida) {
         if (tipoPartida.equalsIgnoreCase("dados")) {
-            for (int i = 0; i < partidasDados.size(); i++) {
-                if (partidasDados.get(i).getPort() == Integer.parseInt(datosJugador1[1])) {
-
-                    if (datosJugador1[3].equalsIgnoreCase("anfitrion")) {
-                        return new String[]{datosJugador1[0], datosJugador1[1], datosJugador1[2]
-                                ,datosJugador1[3], String.valueOf(i)
-                                ,partidasDados.get(i).getP2_host()
-                                ,String.valueOf(partidasDados.get(i).getPort())
-                                ,partidasDados.get(i).getP2_nickName()};
-                    } else {
-                        return new String[]{datosJugador1[0], datosJugador1[1], datosJugador1[2]
-                                ,datosJugador1[3], String.valueOf(i)
-                                ,partidasDados.get(i).getP1_host()
-                                ,String.valueOf(partidasDados.get(i).getPort())
-                                ,partidasDados.get(i).getP1_nickName()};
-                    }
-                }
+            if (datosJugador1[3].equalsIgnoreCase("anfitrion")) {
+                return new String[]{datosJugador1[0], datosJugador1[1], datosJugador1[2],datosJugador1[3], datosJugador1[4]
+                        ,partidasDados.get(Integer.valueOf(datosJugador1[4])).getPlayersInfo().get(1)[1]
+                        ,partidasDados.get(Integer.valueOf(datosJugador1[4])).getPlayersInfo().get(1)[2]
+                        ,partidasDados.get(Integer.valueOf(datosJugador1[4])).getPlayersInfo().get(1)[0]};
+            } else {
+                System.out.println(datosJugador1[4]);
+                return new String[]{datosJugador1[0], datosJugador1[1], datosJugador1[2],datosJugador1[3], datosJugador1[4]
+                        ,partidasDados.get(Integer.valueOf(datosJugador1[4])).getPlayersInfo().get(0)[1]
+                        ,partidasDados.get(Integer.valueOf(datosJugador1[4])).getPlayersInfo().get(0)[2]
+                        ,partidasDados.get(Integer.valueOf(datosJugador1[4])).getPlayersInfo().get(0)[0]};
             }
         }
 
