@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class Server {
                 Thread hilo = new Thread(p);
                 hilo.start();
                 System.out.println("Esperando nueva conexión");
-                mostrarSalas();
+                //mostrarSalas();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -54,26 +55,29 @@ public class Server {
     }
 
     public static synchronized String[] nuevoJugador(String gameType, String nickName){
+        System.out.println(puertoLibre);
+
         if (gameType.equalsIgnoreCase("dados")){
-            boolean partidaNueva = true;
             int n_sala = 0;
 
             for (int i = 0; i < partidasDados.size(); i++) {
                 n_sala++;
                 if (!partidasDados.get(i).isFull()){
-                    partidaNueva = false;
-                    partidasDados.get(i).setP2_nickName(nickName);
+                    partidasDados.get(i).setP2(nickName, "localhost");
                     return new String[]{"localhost", String.valueOf(puertoLibre), nickName, "invitado"};
                 }
             }
-            if(partidaNueva){
-                System.out.println("Sala n"+n_sala+" creada");
-                partidasDados.put(n_sala,new PartidaDados(nickName));
-                puertoLibre++;
-                return new String[]{"localhost", String.valueOf(puertoLibre), nickName, "anfitrion"};
-            }
+            System.out.println("Sala n"+n_sala+" creada");
+            nuevoPuerto();
+            partidasDados.put(n_sala,new PartidaDados(nickName, puertoLibre));
+            return new String[]{"localhost", String.valueOf(puertoLibre), nickName, "anfitrion"};
+
         }
         return null;
+    }
+
+    private static synchronized void nuevoPuerto(){
+        puertoLibre++;
     }
 
     private void mostrarSalas(){
@@ -102,6 +106,10 @@ public class Server {
         if(tipoPartida.equalsIgnoreCase("dados")){
             for (int i = 0; i < partidasDados.size(); i++) {
                 if(partidasDados.get(i).getPort()==Integer.parseInt(datosJugador1[1])){
+                    System.out.println(Arrays.toString(new String[]{datosJugador1[0], datosJugador1[1], datosJugador1[2]
+                            , datosJugador1[3], partidasDados.get(i).getP2_host()
+                            , String.valueOf(partidasDados.get(i).getPort())
+                            , partidasDados.get(i).getP2_nickName()}));
                     return new String[] {datosJugador1[0],datosJugador1[1],datosJugador1[2]
                             ,datosJugador1[3],partidasDados.get(i).getP2_host()
                             ,String.valueOf(partidasDados.get(i).getPort())

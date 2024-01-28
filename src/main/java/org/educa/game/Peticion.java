@@ -48,7 +48,15 @@ public class Peticion implements Runnable {
         }
     }
 
-    private static String arrayToCSV(String[] datos){
-        return datos[0]+","+datos[1]+","+datos[2]+","+datos[3];
+    private static String arrayToCSV(String[] array){
+        if(array != null){
+            String stringCSV = array[0];
+            for (int i = 1; i < array.length; i++) {
+                stringCSV = stringCSV+","+array[i];
+            }
+            return stringCSV;
+        }else{
+            return "error";
+        }
     }
 }
