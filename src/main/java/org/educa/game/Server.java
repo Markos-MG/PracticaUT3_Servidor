@@ -11,94 +11,88 @@ import static java.lang.Thread.sleep;
 
 public class Server {
 
-    private static Map<Integer, Game> partidasDados = new HashMap();
-    private static int puertoLibre = 5570;
+    private static Map<Integer, Game> dadosGames = new HashMap();
+    private static int freePort = 5555;
 
     public void run() {
         System.out.println("Creando socket servidor");
-        iniciarServidor();
+        initializeServer();
     }
 
-    private void iniciarServidor() {
-        System.out.println("Creando socket servidor");
+    private void initializeServer() {
         Socket newSocket = null;
         try (ServerSocket serverSocket = new ServerSocket()) {
-            System.out.println("Realizando el bind");
             InetSocketAddress addr = new InetSocketAddress("localhost", 5555);
-            // Asigna el socket a una dirección y puerto
             serverSocket.bind(addr);
-            System.out.println("Aceptando conexiones");
             while (true) {
                 newSocket = serverSocket.accept();
-                System.out.println("Conexion recibida");
-                // Clase que implementa Runnable
-                Peticion p = new Peticion(newSocket);
-                // Creación y ejecución del hilo
+                System.out.println("\tConexion recibida");
+                Request p = new Request(newSocket);
                 Thread hilo = new Thread(p);
                 hilo.start();
-                System.out.println("Esperando nueva conexión");
-                //mostrarSalas();
+                //System.out.println("Esperando nueva conexión");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            System.out.println("Error en la conexion");
         } finally {
             try {
                 if (newSocket != null) {
                     newSocket.close();
                 }
             } catch (RuntimeException | IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
+                System.out.println("Error al cerrar la conexion");
             }
 
         }
     }
 
-    public static synchronized String[] nuevoJugador(String gameType, String nickName) {
+    public static synchronized String[] newPlayer(String gameType, String nickName) {
 
         if (gameType.equalsIgnoreCase("dados")) {
-            int n_sala = 0;
+            int roomNum = 0;
 
-            for (int i = 0; i < partidasDados.size(); i++) {
-                if (!partidasDados.get(i).isFull()) {
-                    partidasDados.get(i).addPlayer(nickName,"localHost", puertoLibre);
-                    return new String[]{"localhost", String.valueOf(puertoLibre), nickName, "invitado",String.valueOf(n_sala)};
+            for (int i = 0; i < dadosGames.size(); i++) {
+                if (!dadosGames.get(i).isFull()) {
+                    dadosGames.get(i).addPlayer(nickName,"localHost", freePort);
+                    return new String[]{"localhost", String.valueOf(freePort), nickName, "invitado",String.valueOf(roomNum)};
                 }
-                n_sala++;
+                roomNum++;
             }
-            System.out.println("Sala n" + n_sala + " creada");
-            nuevoPuerto();
-            partidasDados.put(n_sala, new Game(nickName, "localhost", puertoLibre, 2));
-            return new String[]{"localhost", String.valueOf(puertoLibre), nickName, "anfitrion", String.valueOf(n_sala)};
+            System.out.println("Sala n" + roomNum + " creada");
+            newPort();
+            dadosGames.put(roomNum, new Game(nickName, "localhost", freePort, 2));
+            return new String[]{"localhost", String.valueOf(freePort), nickName, "anfitrion", String.valueOf(roomNum)};
 
         }
         return null;
     }
 
-    private static synchronized void nuevoPuerto() {
-        puertoLibre++;
+    private static synchronized void newPort() {
+        freePort++;
     }
 
 
-    public static boolean getSalaLlena(String id_sala, String tipoPartida) {
+    public static boolean getFullGame(String id_sala, String tipoPartida) {
         if (tipoPartida.equalsIgnoreCase("dados")) {
-            return partidasDados.get(Integer.parseInt(id_sala)).isFull();
+            return dadosGames.get(Integer.parseInt(id_sala)).isFull();
         }
         return true;
     }
 
-    public static String[] getDatosPartida(String[] datosJugador1, String tipoPartida) {
-        if (tipoPartida.equalsIgnoreCase("dados")) {
-            if (datosJugador1[3].equalsIgnoreCase("anfitrion")) {
-                return new String[]{datosJugador1[0], datosJugador1[1], datosJugador1[2],datosJugador1[3], datosJugador1[4]
-                        ,partidasDados.get(Integer.valueOf(datosJugador1[4])).getPlayersInfo().get(1)[1]
-                        ,partidasDados.get(Integer.valueOf(datosJugador1[4])).getPlayersInfo().get(1)[2]
-                        ,partidasDados.get(Integer.valueOf(datosJugador1[4])).getPlayersInfo().get(1)[0]};
+    public static String[] getGameData(String[] playerData, String gameType) {
+        if (gameType.equalsIgnoreCase("dados")) {
+            if (playerData[3].equalsIgnoreCase("anfitrion")) {
+                return new String[]{playerData[0], playerData[1], playerData[2],playerData[3], playerData[4]
+                        , dadosGames.get(Integer.valueOf(playerData[4])).getPlayersInfo().get(1)[1]
+                        , dadosGames.get(Integer.valueOf(playerData[4])).getPlayersInfo().get(1)[2]
+                        , dadosGames.get(Integer.valueOf(playerData[4])).getPlayersInfo().get(1)[0]};
             } else {
-                System.out.println(datosJugador1[4]);
-                return new String[]{datosJugador1[0], datosJugador1[1], datosJugador1[2],datosJugador1[3], datosJugador1[4]
-                        ,partidasDados.get(Integer.valueOf(datosJugador1[4])).getPlayersInfo().get(0)[1]
-                        ,partidasDados.get(Integer.valueOf(datosJugador1[4])).getPlayersInfo().get(0)[2]
-                        ,partidasDados.get(Integer.valueOf(datosJugador1[4])).getPlayersInfo().get(0)[0]};
+                return new String[]{playerData[0], playerData[1], playerData[2],playerData[3], playerData[4]
+                        , dadosGames.get(Integer.valueOf(playerData[4])).getPlayersInfo().get(0)[1]
+                        , dadosGames.get(Integer.valueOf(playerData[4])).getPlayersInfo().get(0)[2]
+                        , dadosGames.get(Integer.valueOf(playerData[4])).getPlayersInfo().get(0)[0]};
             }
         }
 
@@ -106,8 +100,8 @@ public class Server {
     }
 
 
-    public static void partidaFinalizada(int i){
-        partidasDados.remove(i);
-        System.out.println("Partida "+i+" eliminada");
+    public static void gameConcluded(int i){
+        dadosGames.remove(i);
+        System.out.println("Sala n"+i+" eliminada");
     }
 }

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Game {
 
     private boolean full;
-    private int maxPlayers;
+    private final int maxPlayers;
 
     private ArrayList<String[]> playersInfo = new ArrayList<>();
 
